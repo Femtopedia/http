@@ -4,6 +4,7 @@
 
 import 'dart:io';
 
+import '../http.dart';
 import 'base_client.dart';
 import 'base_request.dart';
 import 'exception.dart';
@@ -58,7 +59,12 @@ class IOClient extends BaseClient {
           reasonPhrase: response.reasonPhrase,
           inner: response);
     } on HttpException catch (error) {
-      throw ClientException(error.message, error.uri);
+      if (error.message
+          == 'Connection closed before full header was received') {
+        return send(Request(request.method, request.url));
+      } else {
+        throw ClientException(error.message, error.uri);
+      }
     }
   }
 
